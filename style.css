@@ -1,0 +1,486 @@
+.container_login {
+  width: 25%;
+  margin: 40px auto;
+  padding: 30px;
+}
+h2 {
+  text-align: center;
+  color: #1c1c7b;
+}
+.email,
+.password,
+.old_password,
+.new_password,
+.confirm_password {
+  border-radius: 7px;
+  border: 1px solid gray;
+  background-color: #f2f2f2;
+  width: 95%;
+  margin: 10px 0;
+  padding: 10px;
+}
+.submit {
+  width: 100%;
+  background-color: #1c1c7b;
+  color: white;
+  border-radius: 10px;
+  border: 1px solid #1c1c7b;
+  padding: 13px;
+  margin-top: 15px;
+  font-size: 20px;
+}
+label {
+  font-size: 20px;
+}
+.forgot {
+  color: #1c1c7b;
+  text-decoration: none;
+  display: flex;
+  justify-content: end;
+}
+.error {
+  color: red;
+}
+
+/* login.php */
+
+.bgcolor {
+  background-color: antiquewhite;
+}
+/* comment_post.php */
+.form-center {
+  margin-left: 0 12%;
+}
+#clear_btn {
+  margin: 30px 5px;
+}
+.width-90 {
+  width: 90%;
+  margin: 30px auto;
+}
+.full_name {
+  background-color: #006400;
+  color: white;
+  height: 35px;
+  width: 35px;
+  border-radius: 50%;
+}
+.edit_btn,
+#delete_data {
+  background-color: #9bdcdc;
+  display: block;
+  color: #000000;
+  padding: 3px 18px;
+}
+.dropdown-toggle::after {
+  display: none;
+}
+.hide {
+  display: none;
+}
+.dots:hover {
+  cursor: pointer;
+  background-color: rgb(197, 197, 197);
+}
+.dots:hover .hide {
+  display: block;
+}
+/* form.php */
+
+.main h3 {
+  color: maroon;
+  letter-spacing: 1px;
+}
+
+.lable {
+  display: block;
+  text-align: left;
+  font-size: 20px;
+  color: rgb(78, 78, 78);
+  padding: 10px 0;
+}
+
+.input {
+  border-radius: 7px;
+  border: 1px solid gray;
+  background-color: #f2f2f2;
+  margin: 10px 0;
+  padding: 10px;
+}
+
+.btn_form {
+  background-color: #7b1111;
+  color: #fff;
+  border: none;
+  width: 250px;
+  height: 50px;
+  border-radius: 20px;
+  font-size: 25px;
+}
+
+.btn_yes {
+  background-color: white;
+  color: rgb(78, 78, 78);
+  border: 1px solid rgb(125, 125, 125);
+}
+
+.flex {
+  display: flex;
+  justify-content: space-around;
+}
+
+.check {
+  text-align: left;
+  margin-right: 10px;
+  display: block;
+}
+
+.span {
+  padding-left: 5px;
+  font-size: 20px;
+}
+
+.checkbox {
+  width: 18px;
+}
+
+.span .red {
+  color: maroon;
+}
+
+.gender {
+  width: 150px;
+  height: 50px;
+  background-color: #7b1111;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 20px;
+}
+
+.gen {
+  width: 150px;
+  height: 50px;
+  background-color: transparent;
+  color: rgb(78, 78, 78);
+  border: 1px solid rgb(125, 125, 125);
+  border-radius: 10px;
+  font-size: 20px;
+}
+
+.eye {
+  position: absolute;
+  top: 27%;
+  left: 96%;
+  background-color: transparent;
+}
+
+.pos {
+  display: flex;
+  justify-content: center;
+  position: relative;
+}
+
+.valid {
+  text-align: left;
+  color: #7b1111;
+  font-size: 17px;
+}
+
+.align {
+  padding-right: 33%;
+}
+
+#irn,
+#valid {
+  width: 46%;
+}
+
+/* userdata.php */
+
+.width-90 {
+  width: 90%;
+  margin: 30px auto;
+}
+
+th,
+td {
+  border: 1px solid #555;
+  padding: 10px;
+  text-align: center;
+}
+
+h2 {
+  text-align: center;
+  color: maroon;
+}
+
+.edit {
+  color: white;
+  text-decoration: none;
+}
+
+.dlt {
+  background-color: #53b4c0;
+  color: #fff;
+  font-size: 16px;
+  border: none;
+}
+
+.searchButton {
+  border-radius: 10px;
+  width: 30%;
+  border: 1px solid gray;
+}
+
+.navbar-collapse {
+  flex-grow: 0 !important;
+}
+
+/* post.php */
+
+#title_error,
+#slug_error,
+#description_error {
+  color: red;
+}
+
+/* .form-center {
+  margin: 0 12%;
+} */
+
+/* postdata.php */
+
+table {
+  margin: 24px 0;
+  width: 100%;
+}
+
+.width-90 {
+  width: 90%;
+  margin: 30px auto;
+}
+
+th,
+td {
+  border: 1px solid #555;
+  padding: 10px;
+  text-align: center;
+}
+
+button a {
+  color: white;
+  text-decoration: none;
+}
+
+.searchButton {
+  border-radius: 10px;
+  width: 30%;
+  border: 1px solid gray;
+}
+
+.dlt {
+  background-color: #53b4c0;
+  color: #fff;
+  font-size: 16px;
+  border: none;
+}
+
+.navbar-collapse {
+  flex-grow: 0 !important;
+}
+
+/* ragister.php */
+
+.backgroundColor {
+  margin: 0;
+  padding: 0;
+  background-color: antiquewhite;
+  font-family: "Gadugi";
+}
+
+.containers {
+  width: 35%;
+  margin: 20px auto;
+  text-align: center;
+}
+
+.main h3 {
+  color: maroon;
+  letter-spacing: 1px;
+}
+
+.lable {
+  display: block;
+  text-align: left;
+  font-size: 20px;
+  color: rgb(78, 78, 78);
+  padding: 10px 0;
+}
+
+.medicare {
+  color: maroon;
+  text-align: left;
+  display: block;
+  font-size: 20px;
+}
+
+.flex {
+  display: flex;
+  justify-content: space-around;
+}
+
+.check {
+  text-align: left;
+  margin-right: 10px;
+  display: block;
+}
+
+.span {
+  padding-left: 5px;
+  font-size: 20px;
+}
+
+.checkbox {
+  width: 18px;
+}
+
+.span .red {
+  color: maroon;
+}
+
+.gender {
+  width: 150px;
+  height: 50px;
+  background-color: #7b1111;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 20px;
+}
+
+.gen {
+  width: 150px;
+  height: 50px;
+  background-color: white;
+  color: rgb(78, 78, 78);
+  border: 1px solid rgb(125, 125, 125);
+  border-radius: 10px;
+  font-size: 20px;
+}
+
+.acc {
+  margin: 30px 0;
+  padding: 10px 0;
+  width: 100%;
+  background-color: #ffcb88;
+  color: maroon;
+  font-size: 30px;
+  border: none;
+  border-radius: 10px;
+}
+
+.eye {
+  position: absolute;
+  top: 27%;
+  left: 96%;
+  background-color: transparent;
+}
+
+.pos {
+  display: flex;
+  justify-content: center;
+  position: relative;
+}
+
+.valid {
+  text-align: left;
+  color: #7b1111;
+  font-size: 17px;
+}
+
+.align {
+  padding-right: 33%;
+}
+
+#irn,
+#valid {
+  width: 46%;
+}
+.sectionComment {
+  margin-top: 22%;
+}
+.image-height {
+  height: 273px;
+}
+.image-100 {
+  width: 100%;
+}
+.plus {
+  height: 15px;
+  width: 15px;
+  border-radius: 50%;
+  font-size: 21px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12px;
+}
+.qty,
+.qtyCheckout {
+  width: 34px;
+  text-align: center;
+  height: 28px;
+}
+.title {
+  font-size: 16px;
+}
+.price {
+  font-size: 17px;
+  padding-right: 10px;
+}
+.count {
+  background-color: #e90202;
+  color: white;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  position: absolute;
+  top: 9%;
+  right: 43px;
+  border: none;
+  text-align: center;
+  font-size: 12px;
+  font-weight: bold;
+}
+.delete {
+  background-color: transparent;
+  border: none;
+  color: white;
+}
+.deleteButton {
+  background-color: transparent;
+  border: none;
+  color: black;
+}
+.dropdown-menu[data-bs-popper] {
+  left: -90px;
+}
+.hr {
+  color: white;
+  height: 2px;
+  background-color: white;
+  opacity: 100;
+}
+.hr_checkout {
+  color: #555555;
+  height: 2px;
+  background-color: #555555;
+  opacity: 100;
+}
+.cart_product,
+.checkout_product {
+  max-height: 60%;
+  overflow: auto;
+  overflow-x: hidden;
+}
