@@ -296,6 +296,8 @@ include '../bootstrap.php';
                 }
             });
 
+
+            
             $(document).on('click', '#deletedCheckout', function() {
                 let row = $(this).closest('.cartDivCheckout');
                 let quantity = parseInt(row.find('.qtyCheckout').val());
