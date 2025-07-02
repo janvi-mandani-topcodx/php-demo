@@ -25,11 +25,10 @@ if (isset($_SESSION['id'])) {
 
 
 ?>
-<div class=" header navbar-light bg-light">
+<div class=" header navbar-light bg-light shadow-sm ">
     <nav class="navbar navbar-expand-lg  d-flex justify-content-between px-5">
         <div>
             <a class="navbar-brand" href="../frontend/" class="logo">LOGO</a>
-
         </div>
         <div>
             <div class="btn-group">
@@ -48,9 +47,11 @@ if (isset($_SESSION['id'])) {
                                 <?php echo $_SESSION['email']; ?>
                             </strong>
                         </p>
-                        <form method="POST" style="display:inline;">
-                            <button type="submit" name="logout" class="dropdown-item">Logout</button>
+                        <form method="POST" class=" ms-2">
+                            <button type="submit" name="logout" class="border-1 rounded bg-transparent ">Logout</button>
                         </form>
+                        <div> <a href="order_history.php" class="text-decoration-none ms-2">Order History </a></div>
+
                     <?php endif ?>
                 </ul>
 
@@ -74,10 +75,9 @@ if (isset($_SESSION['id'])) {
     <div class="offcanvas-body">
         <div id="append_data" class="h-100">
             <?php $totalPrice = 0;
+            $maintotal = 0;
             echo "<div id='append_div' class='cart_product '>";
             while ($productCart = $cart->fetch_assoc()) {
-
-
                 $total = $productCart['price'] * $productCart['quantity'];
                 $totalPrice += $total;
 
@@ -115,19 +115,49 @@ if (isset($_SESSION['id'])) {
                             <div class='col-6 mb-3'>
                                 <button  type='button' class='btn btn-secondary w-100'>Apply</button>
                             </div>
-                        </div>
-                        <hr><div class='d-flex justify-content-between'>
+                        </div>";
+            $shippingThreashold = 0;
+            $shippingCost = 0;
+
+            $result = $con->query("SELECT * FROM settings");
+            while ($row = $result->fetch_assoc()) {
+                if ($row['key'] == 'free_shipping_threashold') {
+                    $shippingThreashold = $row['value'];
+                } elseif ($row['key'] == 'shipping_cost') {
+                    $shippingCost = $row['value'];
+                }
+            }
+            if ($totalPrice >= $shippingThreashold) {
+                $maintotal = $totalPrice + $shippingCost;
+                $showShipping = true;
+            } else {
+                $showShipping = false;
+                $maintotal = $totalPrice;
+            }
+
+            echo "<hr><div class='d-flex justify-content-between'>
                             <p class='fw-bold'>Subtotal</p>
-                            <div class-'d-flex'> 
+                            <div class='d-flex'> 
                                 <span>$</span>
                                 <span id='sub_total' class='me-2'>" .  $totalPrice . "</span>
                             </div>
                         </div>
+                        <div id='shipping_details' style='display: " . ($showShipping ? "block" : "none") . ";'>
+                                <div class='d-flex justify-content-between'>
+                                    <p class=''>Shipping</p> 
+                                    <div class='d-flex'> 
+                                        <input type='hidden' class='form-control' id='cost' name='shipping_cost' value='" . $shippingCost . "'>
+                                        <input type='hidden' class='form-control' id='free_cost' name='shippingThreashold' value='" . $shippingThreashold . "'>
+                                        <span>+$</span>
+                                        <span class='me-2'>" . $shippingCost . "</span>
+                                    </div>
+                                </div>
+                            </div>
                         <hr class='hr'><div class='d-flex justify-content-between'>
                             <h5>Total</h5>
-                            <div class-'d-flex'> 
+                            <div class='d-flex'> 
                                 <span>$</span>
-                                <span id='total_price' class='me-2'>" .  $totalPrice . "</span>
+                                <span id='total_price' class='me-2'>" .  $maintotal . "</span>
                             </div>
                         </div>
                         <div class='mx-3 mb-3'> 
@@ -143,6 +173,7 @@ if (isset($_SESSION['id'])) {
 </div>
 <script>
     $(document).ready(function() {
+
         function count() {
             let totalCount = 0;
             $('.qty').each(function() {
@@ -154,6 +185,7 @@ if (isset($_SESSION['id'])) {
 
         function updateTotal() {
             let totalPrice = 0;
+            let maintotal = 0;
             $('.qty').each(function() {
                 let quantity = parseInt($(this).val());
                 console.log(quantity);
@@ -161,10 +193,19 @@ if (isset($_SESSION['id'])) {
                 console.log(price);
                 total = quantity * price;
                 totalPrice += total;
+                let shippingThreashold = $('#free_cost').val();
+                let shipping_cost = $('#cost').val();
+                if (totalPrice >= shippingThreashold) {
+                    $('#shipping_details').show();
+                    maintotal = parseInt(totalPrice) + parseInt(shipping_cost);
+                } else {
+                    $('#shipping_details').hide();
+                    maintotal = totalPrice;
+                }
             });
             $('#subTotalCheckout').text(totalPrice);
-            $('#totalPriceCheckout').text(totalPrice);
-            $('#total_price').text(totalPrice);
+            $('#totalPriceCheckout').text(maintotal);
+            $('#total_price').text(maintotal);
             $('#sub_total').text(totalPrice);
         }
         $(document).on('click', '.btnAddAction', function() {

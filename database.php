@@ -110,7 +110,11 @@ $orders = "CREATE TABLE $databaseName.orders (
         user_id int ,
         shipping_address  json,
         delivery varchar(100),
+        mobile_number varchar(15),
+        pincode varchar(20),
+        created_at varchar(100),
         total int,
+        shipping_cost int,
         CONSTRAINT order_user_id FOREIGN KEY (user_id)
         REFERENCES users(id)
     )";
@@ -136,6 +140,18 @@ $orderItems = "CREATE TABLE $databaseName.order_items (
 
 if ($con->query($orderItems)) {
     echo "<br>order items Table created successfully";
+} else {
+    echo "<br>Error creating table: " . $con->error;
+}
+
+$orderItems = "CREATE TABLE $databaseName.settings (
+        id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        key varchar(100),
+        value int
+    )";
+
+if ($con->query($orderItems)) {
+    echo "<br>setting  Table created successfully";
 } else {
     echo "<br>Error creating table: " . $con->error;
 }

@@ -23,6 +23,9 @@ if (isset($_POST['logout'])) {
                 <li class="nav-item active">
                     <a class="nav-link" href="../products/productdata.php">Products</a>
                 </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="../auth/setting.php">Settings</a>
+                </li>
             </ul>
         </div>
         <div>

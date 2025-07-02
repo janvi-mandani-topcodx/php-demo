@@ -442,8 +442,8 @@ button a {
 .count {
   background-color: #e90202;
   color: white;
-  width: 30px;
-  height: 30px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   position: absolute;
   top: 9%;
@@ -483,4 +483,7 @@ button a {
   max-height: 60%;
   overflow: auto;
   overflow-x: hidden;
+}
+.lable_setting {
+  font-size: 15px;
 }

@@ -31,6 +31,72 @@ include '../bootstrap.php';
                                 FROM carts 
                                 JOIN products ON carts.product_id = products.id");
     }
+
+    if (isset($_POST['checkout']) && $_SERVER["REQUEST_METHOD"] == "POST") {
+
+        $userId =  $_SESSION['id'];
+        $firstName = $_POST['first_name'];
+        $lastName = $_POST['last_name'];
+        $address = $_POST['address'];
+        $state = $_POST['state'];
+        $country = $_POST['country'];
+        $delivery = $_POST['delivery'];
+        $mobile_number = $_POST['mobile'];
+        $pincode = $_POST['pincode'];
+        $createAt = date("Y-m-d");
+        $totalPrice = 0;
+        $cartItems = $cart = $con->query("SELECT carts.product_id AS id, carts.quantity, products.price 
+                                FROM carts 
+                                JOIN products ON carts.product_id = products.id WHERE carts.user_id = " . $userId);
+
+        while ($products = $cartItems->fetch_assoc()) {
+            $shippingThreashold = 0;
+            $shippingCost = 0;
+
+            $result = $con->query("SELECT * FROM settings");
+            while ($row = $result->fetch_assoc()) {
+                if ($row['key'] == 'free_shipping_threashold') {
+                    $shippingThreashold = $row['value'];
+                } elseif ($row['key'] == 'shipping_cost') {
+                    $shippingCost = $row['value'];
+                }
+            }
+
+            $total = $products['price'] * $products['quantity'];
+            $totalPrice += $total;
+            if ($totalPrice >= $shippingThreashold) {
+                $maintotal = $totalPrice + $shippingCost;
+                $showShipping = true;
+            } else {
+                $showShipping = false;
+                $maintotal = $totalPrice;
+            }
+        }
+        $jsonString = json_encode([
+            'first_name' => $firstName,
+            'last_name' => $lastName,
+            'address' => $address,
+            'state' => $state,
+            'country' => $country
+        ]);
+        $sql = "INSERT INTO orders (user_id , shipping_address , delivery , mobile_number , pincode ,created_at , total , shipping_cost) 
+                        VALUES ('$userId' ,'$jsonString', '$delivery' , '$mobile_number' , '$pincode', '$createAt' , '$maintotal' , '$shippingCost')";
+        if ($con->query($sql)) {
+            $orderId = $con->insert_id;
+            $cartItems = $cart = $con->query("SELECT carts.product_id AS id, carts.quantity, products.price 
+                                FROM carts 
+                                JOIN products ON carts.product_id = products.id WHERE carts.user_id = " . $userId);
+
+            while ($products = $cartItems->fetch_assoc()) {
+                $quantity =  $products['quantity'];
+                $price =  $products['price'];
+                $productId = $products['id'];
+                $data = $con->query("INSERT INTO order_items (order_id , product_id , quantity , price)
+                VALUES  ('$orderId', '$productId' , '$quantity' , '$price')");
+            }
+            $con->query("DELETE FROM carts WHERE user_id = $userId");
+        }
+    }
     ?>
     <div>
         <section class="vh-100">
@@ -40,37 +106,47 @@ include '../bootstrap.php';
                         <div class=" shadow-2-strong h-100" style="border-radius: 1rem;">
                             <h3 class="text-start ps-5">Shipping Details</h3>
                             <div class="py-3 px-5 text-center">
-                                <form action="customer_detail.php" method="post">
+                                <form method="post" id='submit_form'>
                                     <div class="mb-3">
                                         <label for="first" class="form-label lable">First Name</label>
-                                        <input type="text" class="form-control py-2 input" value="<?php echo $_SESSION['first_name']  ?>" id="exampleFormControlInput1 first" name="first_name">
+                                        <input type="text" class="form-control py-2 input" value="<?php echo $_SESSION['first_name']  ?>" id="first" name="first_name">
                                         <div class="valid" id="first_n"></div>
                                     </div>
                                     <div class="mb-3">
                                         <label for="last" class="form-label lable">Last Name</label>
-                                        <input type="text" class="form-control py-2 input" value="<?php echo $_SESSION['last_name']  ?>" id="exampleFormControlInput1 last" name="last_name">
+                                        <input type="text" class="form-control py-2 input" value="<?php echo $_SESSION['last_name']  ?>" id="last" name="last_name">
                                         <div class="valid" id="last_n"></div>
                                     </div>
                                     <div class="mb-3">
-                                        <label for="Address" class="form-label lable">Address</label>
-                                        <input type="text" class="form-control py-2 input" id="exampleFormControlInput1 Address" name="address" placeholder="Address">
+                                        <label for="address" class="form-label lable">Address</label>
+                                        <input type="text" class="form-control py-2 input" id="address" name="address" placeholder="Address">
                                         <div class="valid" id="Address_n"></div>
                                     </div>
 
                                     <div class="mb-3">
                                         <label for="state" class="form-label lable">State</label>
-                                        <input type="text" class="form-control py-2 input" id="exampleFormControlInput1 state" name="state" placeholder="State">
+                                        <input type="text" class="form-control py-2 input" id="state" name="state" placeholder="State">
                                         <div class="valid" id="state_n"></div>
                                     </div>
 
                                     <div class="mb-3">
                                         <label for="country" class="form-label lable">Country</label>
-                                        <input type="text" class="form-control py-2 input" id="exampleFormControlInput1 country" name="country" placeholder="Country">
+                                        <input type="text" class="form-control py-2 input" id="country" name="country" placeholder="Country">
                                         <div class="valid" id="country_n"></div>
                                     </div>
                                     <div class="mb-3">
+                                        <label for="mobile" class="form-label lable">Mobile Number</label>
+                                        <input type="number" class="form-control py-2 input" id="mobile" name="mobile" placeholder="Mobile">
+                                        <div class="valid" id="mobile_n"></div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="pincode" class="form-label lable">Pincode</label>
+                                        <input type="number" class="form-control py-2 input" id="pincode" name="pincode" placeholder="Pincode">
+                                        <div class="valid" id="pincode_n"></div>
+                                    </div>
+                                    <div class="mb-3">
                                         <label for="country" class="form-label lable">Delivery</label>
-                                        <textarea name="delivery" id="" placeholder="Delivery Notes " class="w-100 input"></textarea>
+                                        <textarea name="delivery" id="delivery" placeholder="Delivery Notes " class="w-100 input"></textarea>
                                     </div>
                                     <button class="btn btn-secondary btn-block btn-lg w-100" type="submit" name="checkout" id="submit_button">Checkout</button>
                                 </form>
@@ -83,13 +159,31 @@ include '../bootstrap.php';
                             <div class="card-body p-3 text-center">
                                 <div id="appendDataCheckout" class="h-100">
                                     <?php $totalPrice = 0;
+                                    $maintotal = 0;
                                     echo "<div id='appendDivCheckout' class='cart_product '>";
                                     while ($productCart = $cart->fetch_assoc()) {
 
+                                        $shippingThreashold = 0;
+                                        $shippingCost = 0;
+
+                                        $result = $con->query("SELECT * FROM settings");
+                                        while ($row = $result->fetch_assoc()) {
+                                            if ($row['key'] == 'free_shipping_threashold') {
+                                                $shippingThreashold = $row['value'];
+                                            } elseif ($row['key'] == 'shipping_cost') {
+                                                $shippingCost = $row['value'];
+                                            }
+                                        }
 
                                         $total = $productCart['price'] * $productCart['quantity'];
                                         $totalPrice += $total;
-
+                                        if ($totalPrice >= $shippingThreashold) {
+                                            $maintotal = $totalPrice + $shippingCost;
+                                            $showShipping = true;
+                                        } else {
+                                            $showShipping = false;
+                                            $maintotal = $totalPrice;
+                                        }
                                         if (isset($_SESSION['id'])) {
                                             $product_id = $productCart['product_id'];
                                             echo "<div class='d-flex justify-content-between align-items-center my-3 cartDivCheckout' id='cartDivCheckout-" . $product_id . "' data-id='" . $productCart['id'] . "'>
@@ -128,16 +222,27 @@ include '../bootstrap.php';
                                                 </div>
                                                 <hr><div class='d-flex justify-content-between'>
                                                     <p class='fw-bold'>Subtotal</p>
-                                                    <div class-'d-flex'> 
+                                                    <div class='d-flex'> 
                                                         <span>$</span>
                                                         <span id='subTotalCheckout' class='me-2'>" .  $totalPrice . "</span>
                                                     </div>
                                                 </div>
+                                                <div id='shipping_detailsCheckout' style='display: " . ($showShipping ? "block" : "none") . "'>
+                                                    <div class='d-flex justify-content-between'>
+                                                        <p class=''>Shipping</p> 
+                                                        <div class='d-flex'> 
+                                                            <input type='hidden' class='form-control' id='costCheckout' name='shipping_cost' value='" . $shippingCost . "'>
+                                                            <input type='hidden' class='form-control' id='free_costCheckout' name='shippingThreashold' value='" . $shippingThreashold . "'>
+                                                            <span>+$</span>
+                                                            <span class='me-2'>" . $shippingCost . "</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                                 <hr class='hr_checkout'><div class='d-flex justify-content-between'>
                                                     <h5>Total</h5>
-                                                    <div class-'d-flex'> 
+                                                    <div class='d-flex'> 
                                                         <span>$</span>
-                                                        <span id='totalPriceCheckout' class='me-2'>" .  $totalPrice . "</span>
+                                                        <span id='totalPriceCheckout' class='me-2'>" .  $maintotal . "</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -162,8 +267,54 @@ include '../bootstrap.php';
                 $('#count_increment').val(totalCount);
             }
 
+            $('#submit_form').on('submit', function(e) {
+                e.preventDefault();
+
+                let firstname = $("#first").val();
+                console.log(firstname);
+
+                let lastname = $("#last").val();
+                let address = $("#address").val();
+                let state = $("#state").val();
+                let phoneNumber = $("#mobile").val();
+                let country = $("#country").val();
+                let pincode = $("#pincode").val();
+                let delivery = $("#delivery").val();
+
+                $.ajax({
+                    url: 'checkout.php',
+                    type: 'POST',
+                    data: {
+                        first_name: firstname,
+                        last_name: lastname,
+                        address: address,
+                        state: state,
+                        mobile: phoneNumber,
+                        country: country,
+                        pincode: pincode,
+                        delivery: delivery,
+                        checkout: true
+                    },
+                    success: function(response) {
+                        console.log(response);
+                        $('#subTotalCheckout').text('0');
+                        $('#sub_total').text('0');
+                        $('#totalPriceCheckout').text('0');
+                        $('#total_price').text('0');
+                        $('#shipping_details').hide();
+                        $('#shipping_detailsCheckout').hide();
+                        $('#appendDivCheckout').remove();
+                        $('#append_div').remove();
+                        $('#count_increment').val('0');
+                        window.location.href = './index.php';
+                    }
+                });
+            });
+
+
             function updateTotalCheckout() {
                 let totalPrice = 0;
+                let maintotal = 0;
                 $('.qtyCheckout').each(function() {
                     let quantity = parseInt($(this).val());
                     console.log(quantity);
@@ -171,10 +322,19 @@ include '../bootstrap.php';
                     console.log(price);
                     total = quantity * price;
                     totalPrice += total;
+                    let shippingThreashold = $('#free_costCheckout').val();
+                    let shipping_cost = $('#costCheckout').val();
+                    if (totalPrice >= shippingThreashold) {
+                        $('#shipping_detailsCheckout').show();
+                        maintotal = parseInt(totalPrice) + parseInt(shipping_cost);
+                    } else {
+                        $('#shipping_detailsCheckout').hide();
+                        maintotal = totalPrice;
+                    }
                 });
                 $('#subTotalCheckout').text(totalPrice);
-                $('#totalPriceCheckout').text(totalPrice);
-                $('#total_price').text(totalPrice);
+                $('#totalPriceCheckout').text(maintotal);
+                $('#total_price').text(maintotal);
                 $('#sub_total').text(totalPrice);
             }
             $(document).on("click", ".incrementCheckout", function() {
@@ -228,7 +388,7 @@ include '../bootstrap.php';
 
                 } else {
                     input.val(quantity);
-                    $("input.qty[data-id='" + edit_id + "']").val(quantity);
+                    $("input.qty[data-id='" + edit_id + "' ]").val(quantity);
 
                     $.ajax({
                         url: 'carts.php',
@@ -251,13 +411,13 @@ include '../bootstrap.php';
                 let row = $(this).parent('.d-flex');
                 let input = row.find('.qtyCheckout');
                 var currentValue = parseInt(input.val());
-                console.log("current  = " + currentValue);
+                console.log("current=" + currentValue);
                 quantity = input.val()
-                console.log("quantity = " + quantity);
+                console.log(" quantity=" + quantity);
                 let oldQuantity = parseInt(input.data('old'))
-                console.log("old value = " + oldQuantity);
+                console.log(" old value=" + oldQuantity);
                 let id = $(this).data('product');
-                console.log("id : " + id);
+                console.log(" id : " + id);
 
                 edit_id = $(this).data('id');
                 if (quantity <= 0) {
@@ -288,7 +448,7 @@ include '../bootstrap.php';
                         },
                         success: function(data) {
                             input.data('old', currentValue);
-                            $("input.qty[data-id='" + edit_id + "']").val(currentValue);
+                            $(" input.qty[data-id='" + edit_id + "' ]").val(currentValue);
                             countCheckout()
                             updateTotalCheckout()
                         }
@@ -296,8 +456,6 @@ include '../bootstrap.php';
                 }
             });
 
-
-            
             $(document).on('click', '#deletedCheckout', function() {
                 let row = $(this).closest('.cartDivCheckout');
                 let quantity = parseInt(row.find('.qtyCheckout').val());
