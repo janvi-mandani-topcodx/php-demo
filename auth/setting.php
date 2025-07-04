@@ -11,11 +11,11 @@
         foreach ($settings as $key => $value) {
             $key = $key;
             $value = $value;
-            $check = $con->query("SELECT * FROM settings WHERE `key` = '$key' ");
+            $check = $con->query("SELECT * FROM settings WHERE setting_key = '$key' ");
             if ($check->num_rows > 0) {
-                $con->query("UPDATE settings SET value = '$value' WHERE `key` = '$key'");
+                $con->query("UPDATE settings SET value = '$value' WHERE setting_key = '$key'");
             } else {
-                $con->query("INSERT INTO settings (`key`, value) VALUES ('$key', '$value')");
+                $con->query("INSERT INTO settings (setting_key, value) VALUES ('$key', '$value')");
             }
         }
     }
@@ -24,9 +24,9 @@
 
     $result = $con->query("SELECT * FROM settings");
     while ($row = $result->fetch_assoc()) {
-        if ($row['key'] == 'free_shipping_threashold') {
+        if ($row['setting_key'] == 'free_shipping_threashold') {
             $shippingThreashold = $row['value'];
-        } elseif ($row['key'] == 'shipping_cost') {
+        } elseif ($row['setting_key'] == 'shipping_cost') {
             $shippingCost = $row['value'];
         }
     }

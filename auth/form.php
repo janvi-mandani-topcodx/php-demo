@@ -135,7 +135,6 @@ if (!isset($_SESSION['email'])) {
                                                 <input type="text" name="irn" placeholder="enter IRN" id="irn" value="<?= isset($irn) ? $irn : ''  ?>" class="form-control py-2 input" />
 
                                                 <input type="text" name="valid" placeholder="enter correct expire date" value="<?= isset($valid) ? $valid : ''  ?>" id="valid" class="form-control py-2 input" />
-
                                             </div>
 
                                             <div class="d-flex justify-content-around">

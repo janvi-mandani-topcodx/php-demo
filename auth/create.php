@@ -50,7 +50,6 @@ include 'form.php';
                 btn.style.border = "1px solid #7d7d7d";
                 document.getElementById("visi").style.display = "none";
                 document.getElementById("medicare").value = "No";
-
             }
         });
     }

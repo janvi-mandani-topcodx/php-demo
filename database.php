@@ -7,8 +7,8 @@ if ($con->query($sql)) {
 } else {
     echo "Error creating database: " . $con->error;
 }
-$sql = "CREATE DATABASE $databaseName ";
-if ($con->query($sql)) {
+$newdatabase = "CREATE DATABASE $databaseName ";
+if ($con->query($newdatabase)) {
     echo "<br>Database created successfully";
 } else {
     echo "Error creating database: " . $con->error;
@@ -144,14 +144,53 @@ if ($con->query($orderItems)) {
     echo "<br>Error creating table: " . $con->error;
 }
 
-$orderItems = "CREATE TABLE $databaseName.settings (
+$settings = "CREATE TABLE $databaseName.settings (
         id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
-        key varchar(100),
+        setting_key varchar(100),
         value int
     )";
 
-if ($con->query($orderItems)) {
+if ($con->query($settings)) {
     echo "<br>setting  Table created successfully";
+} else {
+    echo "<br>Error creating table: " . $con->error;
+}
+
+$order_discount = "CREATE TABLE $databaseName.order_discounts (
+        id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        order_id int,
+        discount json,
+        type varchar(100),
+        amount  int,
+        CONSTRAINT discount_order_id FOREIGN KEY (order_id)
+        REFERENCES orders(id)
+    )";
+
+if ($con->query($order_discount)) { 
+    echo "<br>order discount Table created successfully";
+} else {
+    echo "<br>Error creating table: " . $con->error;
+}
+
+$discount = "CREATE TABLE $databaseName.discounts (
+        id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        code varchar(100),
+        amount  int,
+        type varchar(100),
+        Minimum_requirements varchar(100),
+        minimum_amount varchar(100),
+        specific_customer varchar(100),
+        user_id varchar(100),
+        specific_product varchar(100),
+        product_id varchar(100),
+        discount_apply_type varchar(100),
+        discount_type_number varchar(100),
+        start_date  date,
+        end_date  date,
+        enabled boolean
+    )";
+if ($con->query($discount)) {
+    echo "<br>discount Table created successfully";
 } else {
     echo "<br>Error creating table: " . $con->error;
 }

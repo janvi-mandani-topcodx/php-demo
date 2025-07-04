@@ -1,4 +1,5 @@
 <?php
+include '../connection.php';
 session_start();
 if (isset($_POST['logout'])) {
     session_destroy();
@@ -21,8 +22,6 @@ if (isset($_SESSION['id'])) {
                             FROM carts 
                             JOIN products ON carts.product_id = products.id");
 }
-
-
 
 ?>
 <div class=" header navbar-light bg-light shadow-sm ">
@@ -110,10 +109,10 @@ if (isset($_SESSION['id'])) {
                     <div class='position-absolute bottom-0 w-100 pe-4'>
                         <hr><div class='row align-items-center mx-2'>
                             <div class='mb-3 col-6'>
-                                <input type='text' class='form-control py-2 input' value='' id='exampleFormControlInput1 first' name='first_name' placeholder='Enter Voucher Code'>
+                                <input type='text' class='form-control py-2 input' value='' id='voucherCode' name='voucherCode' placeholder='Enter Voucher Code'>
                             </div>
                             <div class='col-6 mb-3'>
-                                <button  type='button' class='btn btn-secondary w-100'>Apply</button>
+                                <input  type='button' class='btn btn-secondary w-100' value='Apply' id='applydiscount' name='applyCode'>
                             </div>
                         </div>";
             $shippingThreashold = 0;
@@ -121,9 +120,9 @@ if (isset($_SESSION['id'])) {
 
             $result = $con->query("SELECT * FROM settings");
             while ($row = $result->fetch_assoc()) {
-                if ($row['key'] == 'free_shipping_threashold') {
+                if ($row['setting_key'] == 'free_shipping_threashold') {
                     $shippingThreashold = $row['value'];
-                } elseif ($row['key'] == 'shipping_cost') {
+                } elseif ($row['setting_key'] == 'shipping_cost') {
                     $shippingCost = $row['value'];
                 }
             }
@@ -152,7 +151,18 @@ if (isset($_SESSION['id'])) {
                                         <span class='me-2'>" . $shippingCost . "</span>
                                     </div>
                                 </div>
-                            </div>
+                        </div>
+                        <div id='discount_details'>";
+            $discount = $con->query("SELECT * FROM order_discounts");
+            $discount_amount = $discount->fetch_assoc();
+            echo "<div class='d-flex justify-content-between'>
+                                    <p class=''>Discount</p> 
+                                    <div class='d-flex'> 
+                                        <span>-$</span>
+                                            <span class='me-2'>" . $discount_amount['amount'] . "</span>
+                                    </div>
+                                </div>
+                        </div>
                         <hr class='hr'><div class='d-flex justify-content-between'>
                             <h5>Total</h5>
                             <div class='d-flex'> 
@@ -208,6 +218,27 @@ if (isset($_SESSION['id'])) {
             $('#total_price').text(maintotal);
             $('#sub_total').text(totalPrice);
         }
+
+        $("#discount_details").hide()
+
+        $(document).on('click', '#applydiscount', function() {
+            let voucherCode = $("#voucherCode").val();
+
+            $.ajax({
+                url: 'carts.php',
+                type: 'POST',
+                data: {
+                    voucherCode: voucherCode
+                },
+                success: function(data) {
+                    console.log(data);
+                    $("#discount_details").show()
+                    updateTotal();
+                    count();
+                }
+            });
+        })
+
         $(document).on('click', '.btnAddAction', function() {
 
             const image = $(this).data('image');

@@ -487,3 +487,23 @@ button a {
 .lable_setting {
   font-size: 15px;
 }
+.form-check-input {
+    width: 20px;
+    height: 20px;
+}
+
+#product_name p {
+    margin: 0;
+    padding: 8px 12px;
+}
+
+#product_name p:hover {
+    background-color: #f1f1f1;
+}
+
+.dropdown-menu.show {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    z-index: 1000;
+}

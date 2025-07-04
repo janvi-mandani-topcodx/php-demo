@@ -19,6 +19,23 @@ if (isset($_POST['delete_id'])) {
         echo "error";
     }
 }
+
+if (isset($_POST['voucherCode'])) {
+    include 'voucher.php';
+    $voucherInput = $_POST['voucherCode'];
+    $discounts = new voucherCode();
+    $userId = $_SESSION['id'];
+    $discounts->voucher($voucherInput, $userId, $con);
+    $amount = $discounts->discountAmount;
+    $check = $con->query("SELECT * FROM order_discounts");
+    if ($check->num_rows == 0 &&  isset($amount)) {
+        $sql = $con->query("INSERT INTO order_discounts (amount) 
+                VALUES ('$amount')");
+        echo  "" . $discounts->discountAmount;
+    } else {
+        echo "no voucher";
+    }
+}
 if (isset($_POST['title'])) {
     $user_id = $_SESSION['id'];
     $product_id = $_POST['id'];
