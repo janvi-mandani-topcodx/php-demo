@@ -22,20 +22,38 @@ if (isset($_POST['delete_id'])) {
 
 if (isset($_POST['voucherCode'])) {
     include 'voucher.php';
+
     $voucherInput = $_POST['voucherCode'];
+    $subtotal = $_POST['subtotal'];
+    $cartCount = $_POST['cartCount'];
+    $discountUserId = $_SESSION['id'];
+
     $discounts = new voucherCode();
-    $userId = $_SESSION['id'];
-    $discounts->voucher($voucherInput, $userId, $con);
-    $amount = $discounts->discountAmount;
-    $check = $con->query("SELECT * FROM order_discounts");
-    if ($check->num_rows == 0 &&  isset($amount)) {
-        $sql = $con->query("INSERT INTO order_discounts (amount) 
-                VALUES ('$amount')");
-        echo  "" . $discounts->discountAmount;
-    } else {
-        echo "no voucher";
+
+    $result = $discounts->voucher($voucherInput, $subtotal, $cartCount, $discountUserId, $con);
+    $discount = $con->query("SELECT * FROM discounts WHERE code = '" . $voucherInput . "'");
+    if ($discount_data = $discount->fetch_assoc()) {
+
+        $amount = $discount_data['amount'];
+        $type = $discount_data['type'];
+        $code = $discount_data['code'];
+
+
+        $jsonString = json_encode([
+            'user_id' => $discountUserId,
+            'code' => $code
+        ]);
+//        $orderDiscounts = $con->query("SELECT * FROM orders");
+//        if ($orderDiscounts->num_rows > 0) {
+//            $sql = $con->query("UPDATE order_discounts SET amount='$amount' , type='$type'  WHERE code = " . $code);
+//        }
+//        else{
+            $sql = $con->query("INSERT INTO order_discounts (discount, type, amount)
+                                VALUES ('$jsonString', '$type', '$amount')");
+//        }
     }
 }
+
 if (isset($_POST['title'])) {
     $user_id = $_SESSION['id'];
     $product_id = $_POST['id'];

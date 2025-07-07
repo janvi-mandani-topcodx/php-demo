@@ -55,9 +55,9 @@ include '../bootstrap.php';
 
             $result = $con->query("SELECT * FROM settings");
             while ($row = $result->fetch_assoc()) {
-                if ($row['key'] == 'free_shipping_threashold') {
+                if ($row['setting_key'] == 'free_shipping_threashold') {
                     $shippingThreashold = $row['value'];
-                } elseif ($row['key'] == 'shipping_cost') {
+                } elseif ($row['setting_key'] == 'shipping_cost') {
                     $shippingCost = $row['value'];
                 }
             }
@@ -79,8 +79,11 @@ include '../bootstrap.php';
             'state' => $state,
             'country' => $country
         ]);
+
         $sql = "INSERT INTO orders (user_id , shipping_address , delivery , mobile_number , pincode ,created_at , total , shipping_cost) 
                         VALUES ('$userId' ,'$jsonString', '$delivery' , '$mobile_number' , '$pincode', '$createAt' , '$maintotal' , '$shippingCost')";
+
+
         if ($con->query($sql)) {
             $orderId = $con->insert_id;
             $cartItems = $cart = $con->query("SELECT carts.product_id AS id, carts.quantity, products.price 
@@ -92,11 +95,38 @@ include '../bootstrap.php';
                 $price =  $products['price'];
                 $productId = $products['id'];
                 $data = $con->query("INSERT INTO order_items (order_id , product_id , quantity , price)
-                VALUES  ('$orderId', '$productId' , '$quantity' , '$price')");
+                VALUES  ('$orderId' , '$productId' , '$quantity' , '$price')");
+            }
+            $voucherInput = $_POST['voucherCode'];
+            $subtotal = $_POST['subtotal'];
+            $cartCount = $_POST['cartCount'];
+            $discountUserId = $_SESSION['id'];
+
+            if (!empty($voucherInput)) {
+                $discounts = new voucherCode();
+                $voucherCheck = $discounts->voucher($voucherInput, $subtotal, $cartCount, $discountUserId, $con);
+                    $discountData = $con->query("SELECT * FROM discounts WHERE code = '" . $voucherInput . "'");
+                    $discountRow = $discountData->fetch_assoc();
+                        $amount = $discountRow['amount'];
+                        $type = $discountRow['type'];
+                        $code = $discountRow['code'];
+
+                        $jsonDiscount = json_encode([
+                            'user_id' => $userId,
+                            'code' => $code
+                        ]);
+
+                        $insertDiscount = $con->query("INSERT INTO order_discounts (order_id, discount, type, amount)
+                                                   VALUES ('$orderId', '$jsonDiscount', '$type', '$amount')");
+                        if (!$insertDiscount) {
+                            echo "Discount insert failed: " . $con->error;
+                        }
+
             }
             $con->query("DELETE FROM carts WHERE user_id = $userId");
         }
-    }
+}
+
     ?>
     <div>
         <section class="vh-100">
@@ -168,9 +198,9 @@ include '../bootstrap.php';
 
                                         $result = $con->query("SELECT * FROM settings");
                                         while ($row = $result->fetch_assoc()) {
-                                            if ($row['key'] == 'free_shipping_threashold') {
+                                            if ($row['setting_key'] == 'free_shipping_threashold') {
                                                 $shippingThreashold = $row['value'];
-                                            } elseif ($row['key'] == 'shipping_cost') {
+                                            } elseif ($row['setting_key'] == 'shipping_cost') {
                                                 $shippingCost = $row['value'];
                                             }
                                         }
@@ -214,10 +244,10 @@ include '../bootstrap.php';
                                             <div class='position-absolute bottom-0 w-100 pe-4'>
                                                 <hr><div class='row align-items-center mx-2'>
                                                     <div class='mb-3 col-6'>
-                                                        <input type='text' class='form-control py-2 input' value='' id='exampleFormControlInput1 first' name='first_name' placeholder='Enter Voucher Code'>
+                                                        <input type='text' class='form-control py-2 input' value='' id='voucherCodeCheckout' name='' placeholder='Enter Voucher Code'>
                                                     </div>
                                                     <div class='col-6 mb-3'>
-                                                        <button  type='button' class='btn btn-secondary w-100'>Apply</button>
+                                                        <button  type='button' class='btn btn-secondary w-100' id='applydiscountcheckout'>Apply</button>
                                                     </div>
                                                 </div>
                                                 <hr><div class='d-flex justify-content-between'>
@@ -237,6 +267,27 @@ include '../bootstrap.php';
                                                             <span class='me-2'>" . $shippingCost . "</span>
                                                         </div>
                                                     </div>
+                                                </div>
+                                                <div id='discount_details'>";
+                                                            $discountAmount = 0;
+                                                            $discount = $con->query("SELECT * FROM order_discounts");
+                                                            if ($discount  && $discount->num_rows > 0) {
+                                                                $discount_row = $discount->fetch_assoc();
+                                                                $discount_amount = $discount_row['amount'];
+                                                                if($discount_row['type'] == 'percentage'){
+                                                                    $discountAmount = $totalPrice % $discount_amount;
+                                                                }
+                                                                if ($discount_row['type'] == 'fixed'){
+                                                                    $discountAmount = $totalPrice - $discount_amount;
+                                                                }
+                                                            }
+                                                            echo "<div class='d-flex justify-content-between'>
+                                                            <p class=''>Discount</p> 
+                                                            <div class='d-flex'> 
+                                                                <span>-$</span>
+                                                                    <span class='me-2'>" . $discountAmount . "</span>
+                                                            </div>
+                                                        </div>
                                                 </div>
                                                 <hr class='hr_checkout'><div class='d-flex justify-content-between'>
                                                     <h5>Total</h5>
@@ -311,8 +362,8 @@ include '../bootstrap.php';
                 });
             });
 
-
             function updateTotalCheckout() {
+
                 let totalPrice = 0;
                 let maintotal = 0;
                 $('.qtyCheckout').each(function() {
@@ -362,6 +413,33 @@ include '../bootstrap.php';
                     }
                 });
             });
+            $("#discount_details").hide()
+
+            $(document).on('click', '#applydiscountcheckout', function() {
+                let voucherCode = $("#voucherCodeCheckout").val();
+                let subtotal = $('#subTotalCheckout').text();
+                let cartCount = $('#count_increment').val();
+                $.ajax({
+                    url: 'carts.php',
+                    type: 'POST',
+                    data: {
+                        voucherCode: voucherCode,
+                        subtotal : subtotal,
+                        cartCount : cartCount
+                    },
+                    success: function(data) {
+                        console.log(data);
+                        if (voucherCode != '') {
+                            $("#discount_details").show()
+                            updateTotalCheckout();
+                            countCheckout();
+                        } else {
+                            console.log('tttttttttttttt');
+                            $("#discount_details").hide()
+                        }
+                    }
+                });
+            })
             $(document).on('click', '.dicrementCheckout', function() {
                 let row = $(this).parent('.d-flex');
                 let input = row.find('.qtyCheckout');

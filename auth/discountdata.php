@@ -19,7 +19,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['create_discount'])) {
     $selectedCustomerId = isset($_POST['selected_customer_name']) && $_POST['selected_customer_name'] != '' ? $_POST['selected_customer_name'] : NULL;
     $selectedProductId = isset($_POST['selected_product_id']) && $_POST['selected_product_id'] != ''  ? $_POST['selected_product_id'] :  NULL;
 
-
+    
     if ($Minimum_requirements === 'minimum purchase amount') {
         $quantityAmount = $_POST['purchaseAmount'];
     } elseif ($Minimum_requirements === 'minimum quantity of items') {

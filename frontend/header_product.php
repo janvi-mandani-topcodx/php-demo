@@ -153,13 +153,23 @@ if (isset($_SESSION['id'])) {
                                 </div>
                         </div>
                         <div id='discount_details'>";
-            $discount = $con->query("SELECT * FROM order_discounts");
-            $discount_amount = $discount->fetch_assoc();
-            echo "<div class='d-flex justify-content-between'>
+                            $discountAmount = 0;
+                                $discount = $con->query("SELECT * FROM order_discounts");
+                                if ($discount && $discount->num_rows > 0) {
+                                    $discount_row = $discount->fetch_assoc();
+                                    $discount_amount = $discount_row['amount'];
+                                    if($discount_row['type'] == 'percentage'){
+                                        $discountAmount = $totalPrice % $discount_amount;
+                                    }
+                                    if ($discount_row['type'] == 'fixed'){
+                                        $discountAmount = $totalPrice - $discount_amount;
+                                    }
+                                }
+                                echo "<div class='d-flex justify-content-between'>
                                     <p class=''>Discount</p> 
                                     <div class='d-flex'> 
                                         <span>-$</span>
-                                            <span class='me-2'>" . $discount_amount['amount'] . "</span>
+                                            <span class='me-2'>" . $discountAmount . "</span>
                                     </div>
                                 </div>
                         </div>
@@ -223,18 +233,26 @@ if (isset($_SESSION['id'])) {
 
         $(document).on('click', '#applydiscount', function() {
             let voucherCode = $("#voucherCode").val();
-
+            let subtotal = $('#sub_total').text();
+            let cartCount = $('#count_increment').val();
             $.ajax({
                 url: 'carts.php',
                 type: 'POST',
                 data: {
-                    voucherCode: voucherCode
+                    voucherCode: voucherCode,
+                    subtotal : subtotal,
+                    cartCount : cartCount
                 },
                 success: function(data) {
                     console.log(data);
-                    $("#discount_details").show()
-                    updateTotal();
-                    count();
+                    if (voucherCode != '' && data == '') {
+                        $("#discount_details").show()
+                        updateTotal();
+                        count();
+                    } else {
+                        console.log('tttttttttttttt');
+                        $("#discount_details").hide()
+                    }
                 }
             });
         })
